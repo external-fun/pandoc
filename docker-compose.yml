@@ -1,0 +1,60 @@
+version: "3.9"
+services:
+  client:
+    environment:
+      - REACT_APP_ENDPOINT=http://localhost:8080
+    build: ./client/
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+
+  server:
+    build: ./server/
+    environment:
+      - DB_CONNECT_URL=postgres://lispberry:(lispberry)@db:5432/pandoc_db?sslmode=disable
+      - STORAGE_BASE_URL=pandoc.external.fun
+      - S3_ENDPOINT=https://hb.bizmrg.com
+      - S3_ACCESS_KEY_ID=raNAbEAKKmG7SwebEnfCAh
+      - S3_SECRET_ACCESS_KEY=9qHYfZjBB571Q2TWsDwPLuWNDf76867qUMmLa6hpxePo
+      - S3_BUCKET_NAME=pandoc
+      - RABBIT_MQ_URL=amqp://worker:worker@rabbitmq:5672/
+      - RABBIT_MQ_NAME=worker-queue
+    ports:
+      - "8080:8080"
+    depends_on:
+      - rabbitmq
+      - db
+    restart: on-failure
+    volumes:
+      - ./data/:/var/lib/postgresql/data
+
+  worker:
+    environment:
+      - DB_CONNECT_URL=postgres://lispberry:(lispberry)@db:5432/pandoc_db?sslmode=disable
+      - STORAGE_BASE_URL=pandoc.external.fun
+      - S3_ENDPOINT=https://hb.bizmrg.com
+      - S3_ACCESS_KEY_ID=raNAbEAKKmG7SwebEnfCAh
+      - S3_SECRET_ACCESS_KEY=9qHYfZjBB571Q2TWsDwPLuWNDf76867qUMmLa6hpxePo
+      - S3_BUCKET_NAME=pandoc
+      - RABBIT_MQ_URL=amqp://worker:worker@rabbitmq:5672/
+      - RABBIT_MQ_NAME=worker-queue
+    restart: on-failure
+    build: ./worker/
+
+  rabbitmq:
+    image: "rabbitmq:latest"
+    environment:
+      - RABBITMQ_DEFAULT_USER=worker
+      - RABBITMQ_DEFAULT_PASS=worker
+    ports:
+      - "5672:5672"
+
+  db:
+    environment:
+      - POSTGRES_USER=lispberry
+      - POSTGRES_PASSWORD=(lispberry)
+      - POSTGRES_DB=pandoc_db
+    build: ./db
+    ports:
+      - "5432:5432"
