@@ -3,6 +3,7 @@ services:
   client:
     environment:
       - REACT_APP_ENDPOINT=http://localhost:8080
+      - REACT_APP_STAT_ENDPOINT=ws://localhost:9090
     build: ./client/
     ports:
       - "3000:3000"
@@ -15,8 +16,8 @@ services:
       - DB_CONNECT_URL=postgres://lispberry:(lispberry)@db:5432/pandoc_db?sslmode=disable
       - STORAGE_BASE_URL=pandoc.external.fun
       - S3_ENDPOINT=https://hb.bizmrg.com
-      - S3_ACCESS_KEY_ID=raNAbEAKKmG7SwebEnfCAh
-      - S3_SECRET_ACCESS_KEY=9qHYfZjBB571Q2TWsDwPLuWNDf76867qUMmLa6hpxePo
+      - S3_ACCESS_KEY_ID=dbB8eoJ5ATkhFbsDcbDxoe
+      - S3_SECRET_ACCESS_KEY=4TWhri97skN4HZ4tPcSH13uhKFRyGajm3cXJxH7dyn2Y
       - S3_BUCKET_NAME=pandoc
       - RABBIT_MQ_URL=amqp://worker:worker@rabbitmq:5672/
       - RABBIT_MQ_NAME=worker-queue
@@ -34,13 +35,20 @@ services:
       - DB_CONNECT_URL=postgres://lispberry:(lispberry)@db:5432/pandoc_db?sslmode=disable
       - STORAGE_BASE_URL=pandoc.external.fun
       - S3_ENDPOINT=https://hb.bizmrg.com
-      - S3_ACCESS_KEY_ID=raNAbEAKKmG7SwebEnfCAh
-      - S3_SECRET_ACCESS_KEY=9qHYfZjBB571Q2TWsDwPLuWNDf76867qUMmLa6hpxePo
+      - S3_ACCESS_KEY_ID=dbB8eoJ5ATkhFbsDcbDxoe
+      - S3_SECRET_ACCESS_KEY=4TWhri97skN4HZ4tPcSH13uhKFRyGajm3cXJxH7dyn2Y
       - S3_BUCKET_NAME=pandoc
       - RABBIT_MQ_URL=amqp://worker:worker@rabbitmq:5672/
       - RABBIT_MQ_NAME=worker-queue
     restart: on-failure
     build: ./worker/
+
+  stat:
+    build: ./stat
+    environment:
+      - DB_CONNECT_URL=postgres://lispberry:(lispberry)@db:5432/pandoc_db?sslmode=disable
+    ports:
+      - "9090:9090"
 
   rabbitmq:
     image: "rabbitmq:latest"

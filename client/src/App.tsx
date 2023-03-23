@@ -39,13 +39,6 @@ function App() {
     await uploadFile(file);
   };
 
-  useEffect(() => {
-    setInterval(async () => {
-      const resp = await api.status(uuid)
-      console.log(resp)
-    }, 16)
-  }, []);
-
   return (
     <div className="App centered">
       {page.type === 'UploadPage' && <DragAndDrop onAddFile={addFile} /> }
